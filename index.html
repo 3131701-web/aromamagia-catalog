@@ -6111,85 +6111,40 @@ html,body{width:100%;max-width:100%;overflow-x:hidden!important;}
 });
 </script>
 
-<script id="aromamagia-mobile-order-fix">
+<script id="aromamagia-order-working-final">
 (function(){
-  function getProductName(btn){
-    const card = btn.closest('.card,.product-card,.item-card');
-    if(!card) return 'аромат';
-    const title = card.querySelector('h2,.product-title,.name');
-    return title ? title.textContent.trim() : 'аромат';
+  const modal=document.getElementById('orderModal');
+  const product=document.getElementById('orderModalProduct');
+  const vk=document.getElementById('orderVk');
+  const max=document.getElementById('orderMax');
+  const ok=document.getElementById('orderOk');
+  if(!modal||!product||!vk||!max||!ok)return;
+  let message='';
+  function copyMessage(){
+    const fallback=()=>{const ta=document.createElement('textarea');ta.value=message;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();};
+    if(navigator.clipboard&&window.isSecureContext){return navigator.clipboard.writeText(message).catch(fallback);}
+    fallback(); return Promise.resolve();
   }
-
-  function openExistingOrder(btn){
-    const name = getProductName(btn);
-
-    // Existing modal APIs used by common versions of this catalog.
-    if(typeof window.openOrderModal === 'function'){
-      window.openOrderModal(name);
-      return true;
-    }
-    if(typeof window.showOrderModal === 'function'){
-      window.showOrderModal(name);
-      return true;
-    }
-
-    // Existing modal element fallback.
-    const modal = document.getElementById('orderModal');
-    if(modal){
-      modal.classList.add('show','active','open');
-      modal.style.display='flex';
-      modal.setAttribute('aria-hidden','false');
-
-      const nameTargets = modal.querySelectorAll(
-        '[data-product-name],#orderProductName,.order-product-name,.product-name'
-      );
-      nameTargets.forEach(el=>el.textContent=name);
-
-      const inputs = modal.querySelectorAll(
-        'input[name="product"],input[name="productName"],input[data-product]'
-      );
-      inputs.forEach(el=>el.value=name);
-      return true;
-    }
-    return false;
+  function openOrder(btn){
+    const card=btn.closest('.card');
+    if(!card)return;
+    const code=card.querySelector('.code')?.textContent.trim()||'';
+    const name=card.querySelector('h2')?.textContent.trim()||'аромат';
+    message=`Здравствуйте! Хочу заказать ${code} ${name}.`;
+    product.textContent=`${code} ${name}`;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
   }
-
-  // Delegated listener works for dynamically rendered cards and mobile browsers.
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('.order-btn');
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    openExistingOrder(btn);
-  }, true);
-
-  // Also support keyboard activation/accessibility.
-  document.addEventListener('keydown', function(e){
-    if(e.key!=='Enter' && e.key!==' ') return;
+  function closeOrder(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
+  document.addEventListener('click',e=>{
     const btn=e.target.closest('.order-btn');
-    if(!btn) return;
-    e.preventDefault();
-    openExistingOrder(btn);
-  }, true);
-})();
-</script>
-
-<script id="aromamagia-modal-close-final">
-(function(){
-  function closeModal(){
-    const m=document.getElementById('orderModal');
-    if(!m)return;
-    m.classList.remove('show','active','open');
-    m.style.display='none';
-    m.setAttribute('aria-hidden','true');
-  }
-  document.addEventListener('click',function(e){
-    const m=document.getElementById('orderModal');
-    if(!m || (m.style.display==='none' && !m.classList.contains('show'))) return;
-    if(e.target===m || e.target.classList.contains('modal-backdrop')){
-      closeModal();
-    }
+    if(btn){e.preventDefault();e.stopPropagation();openOrder(btn);return;}
+    if(e.target===modal)closeOrder();
   },true);
+  vk.addEventListener('click',()=>copyMessage().finally(()=>window.open('https://vk.ru/im?sel=-241059360','_blank','noopener,noreferrer')));
+  max.addEventListener('click',()=>copyMessage().finally(()=>window.open('https://max.ru/u/f9LHodD0cOKoIjG0FIVGZol7Ww27SYehkRsQvv9i2w5PjD0uHBNtynkUQ3I','_blank','noopener,noreferrer')));
+  ok.addEventListener('click',()=>copyMessage().finally(()=>window.open('https://ok.ru/messages/g110265835061455','_blank','noopener,noreferrer')));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeOrder();});
 })();
 </script>
 </body></html>
